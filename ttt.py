@@ -2,24 +2,24 @@ cell=[' ',' ',' ',' ',' ',' ',' ',' ',' ']
 def IsSpaceFree(pos):
     return cell[pos]== ' '
 def get_input(sign):
-    ch=input('Enter the Cell No where you want to place your sign (1-9)')
+    ch=input('Enter the Cell Number where you want to place your sign (1-9)')
     try:
         a=int(ch)
-        if (a<9  and a>0):
+        if (a<=9  and a>0):
             if IsSpaceFree(a-1):
                 cell[a-1]=sign
             else: print("You requested already occupied position")
         else: print("Invalid Position number")
     except:
-        print("Please Type a number")
+        print("Please Type a number\n")
 
 
 def print_game():
     for i in range(0,3):
             print(cell[3*i] + " | "+cell[3*i+1]+" | "+ cell[3*i+2])
-            print("--------")
+            print("__________")
 def IsboardFull(c):
-    if cell.count(' ') > 1:
+    if cell.count(' ') > 0:
         return False
     else:
         return True
@@ -44,8 +44,10 @@ def X_turn(c):
     if(count_X==count_0):
         return (True)
     elif(count_X>count_0):
+        print("Not X's Turn")
         return(False)
-def Check_Center(p,c):
+def Check_intersection(p,c):
+    #To check if the given list of possible moves contain specific corner pieces or central pieces by evaluating intersection
     check_list=c
     list_as_set= set(p)
     intersection = list_as_set.intersection(check_list)
@@ -58,69 +60,91 @@ def computer():
     #Use min max algorithm
 
     possible_move = []
-    for i in range(1, 9):
+    for i in range(0, 9):#Finding out available valid moves
         if (cell[i] == ' '):
             possible_move.append(i)
-    cell_copy= cell[:]
     print(possible_move)
-    print(possible_move.count(5))
-
+    flag = False
     for move in possible_move:
-        cell_copy[move]='O'
-        if (Gameover(cell_copy, "0") == "0") or (Gameover(cell_copy, "X")):
-            cell[move]= '0'
+        cell_copy = cell[:]
+        cell_copy_forX = cell[:]
+        cell_copy[move] = '0'
+        cell_copy_forX[move]= 'X'
+        #print(cell_copy)
+        Checkwinning = (Gameover(cell_copy, "0") == "0")
+        CheckLosing = (Gameover(cell_copy_forX, "X") =="X")
+       # print("After one move either of one is winning", Checkwinning)
+        if Checkwinning:
+            #If winning finish the game
+            cell[move] = '0'
+            flag = True
+            print('computer placed an \'0\' in position', move)
+            break
+        elif CheckLosing:
+            #If Losing Prevent the loss
+            cell[move] = '0'
+            flag= True
+            print('computer placed an \'0\' in position', move)
             break
 
-        if (possible_move.count(5) > 0):
-            #Center move
-            cell[5]='0'
-            print("5 is available")
-            break
-        if len(Check_Center(possible_move,[2,4,6,8]))>0:
-            import random
-            index=random.randint(1,len(Check_Center(possible_move,[2,4,6,8]))+1)
-            cell[2*index]= '0'
-            print(index)
-            break
-        if(len(Check_Center(possible_move,[1,3,7,9]))>0):
-            #corner piece
-            import random
-            list= Check_Center(possible_move, [1, 3, 7, 9])
-            index = random.randint(1, len(list + 1))
-            x=list[index-1]
-            cell[x] = '0'
-            break
-    print('computer placed an \'0\' in position', move)
-    print(cell)
+    if(not flag):
+        if(possible_move.count(4) > 0):
+            #If the central position i.e 5 is available, place there
+           #Checking at corner piece
+            cell[4] = '0'
+        else:
+            if len(Check_intersection(possible_move,[1,3,5,7]))>1:
+                #Placing at Corners
+                import random
+                #Generating random integer between 1 to select moves among available center peices
+                list= Check_intersection(possible_move, [1,3,5,7])
+                if(len(list)<1):
+                    x=list[0]
+                else:
+                    index=random.randint(0,len(list)-1)
+                    x = list[index]
+                cell[x] = '0'
+                print('computer placed an \'0\' in position', 2*index+1)
 
+
+            elif (len(Check_intersection(possible_move, [0, 2, 6, 8])) > 1):
+                # Placing at middle Piece
+                import random
+                list = Check_intersection(possible_move, [0, 2, 6, 8])
+                if (len(list) < 1):
+                    x = list[0]
+                else:
+                    index = random.randint(0, len(list) - 1)
+                    x = list[index]
+                cell[x] = '0'
+                print('\ncomputer placed an \'0\' in position')
 
 def main():
-    print("Welcome to Tic Tac Toe")
+    print("Welcome to Tic Tac Toe \n")
     print_game()
     sgn= "X"
-    print("It's X's Turn")
+    print("\nIt's X's Turn")
     get_input(sgn)
     print_game()
     while not (IsboardFull(cell)):
         if(X_turn(cell)):
             sgn = "X"
             if (Gameover(cell, "0") == "0"):
-                print('Sorry Computer won the game this time.')
+                print('\nSorry Computer won the game this time.')
                 break
 
-            print("X's Turn")
+            print("\nX's Turn")
             get_input(sgn)
             print_game()
-        elif not (X_turn(cell)):
+        if not (X_turn(cell)):
             sgn = "0"
             if (Gameover(cell, "X") == "X"):
-                print('Congratulations Player X,you won the game.')
+                print('\nCongratulations Player X,you won the game.')
                 break
-            print("Computer's turn")
+            print("\nComputer's turn")
             computer()
             print_game()
-        if IsboardFull(cell):
-            print("Game is draw.Play Again.")
-            break
+    if IsboardFull(cell):
+        print("\nGame is draw.Play Again.")
 main()
 #computer()
