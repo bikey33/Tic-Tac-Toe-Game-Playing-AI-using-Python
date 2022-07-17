@@ -1,7 +1,12 @@
-cell=[' ',' ',' ',' ',' ',' ',' ',' ',' ']
+cell=[' ',' ',' ',' ',' ',' ',' ',' ',' '] # List holding all the signs and represents board conditons
+
 def IsSpaceFree(pos):
+    # Checks If the space in board is free
     return cell[pos]== ' '
+
+
 def get_input(sign):
+    # Get Input from the User
     ch=input('Enter the Cell Number where you want to place your sign (1-9)')
     try:
         a=int(ch)
@@ -15,15 +20,22 @@ def get_input(sign):
 
 
 def print_game():
+    # print game text to console
     for i in range(0,3):
             print(cell[3*i] + " | "+cell[3*i+1]+" | "+ cell[3*i+2])
             print("__________")
+
+
 def IsboardFull(c):
+    # Checks if the Board is Full
     if cell.count(' ') > 0:
         return False
     else:
         return True
+
+
 def Gameover(c,sg):
+    # Check if the Game has been over or not
     result= ((c[0]==sg and c[1]==sg and c[2]==sg)
             or (c[3] == sg and c[4] == sg and c[5] == sg) or
             (c[6] == sg and c[7] == sg and c[8] == sg) or
@@ -34,18 +46,24 @@ def Gameover(c,sg):
             (c[2] == sg and c[4] == sg and c[6] == sg))
 
     if(result):
-        return sg
+        return sg #Return the winner's sign
     else:
-        y="N"
+        y="N" # Other wise return "N" indicating no-one won
         return y
+
+
 def X_turn(c):
-    count_X=c.count("X")
+    # Determine Player's turn
+    count_X=c.count("X") # Count Number of X's on board
     count_0=c.count("0")
     if(count_X==count_0):
-        return (True)
+
+        return (True) # If X's turn return True
     elif(count_X>count_0):
         print("Not X's Turn")
         return(False)
+
+
 def Check_intersection(p,c):
     #To check if the given list of possible moves contain specific corner pieces or central pieces by evaluating intersection
     check_list=c
@@ -53,18 +71,22 @@ def Check_intersection(p,c):
     intersection = list_as_set.intersection(check_list)
     inter_list=list(intersection)
     return inter_list
+
+
 def computer():
-    #Determine all sets of possible moves
-    #Find out values of each possible moves
-    #Select  a move to that  maximizes the winning situations of Computer
-    #Use min max algorithm
+    # Determine all sets of possible moves
+    # Find out values of each possible moves
+    # Select  a move to that  maximizes the winning situations of Computer
+    # Use min max algorithm
 
     possible_move = []
-    for i in range(0, 9):#Finding out available valid moves
+    for i in range(0, 9):# Finding out available valid moves
         if (cell[i] == ' '):
             possible_move.append(i)
     print(possible_move)
     flag = False
+    # Checking whether the next move is winning and losing
+    # If that the case make moves accordingly
     for move in possible_move:
         cell_copy = cell[:]
         cell_copy_forX = cell[:]
@@ -73,25 +95,28 @@ def computer():
         #print(cell_copy)
         Checkwinning = (Gameover(cell_copy, "0") == "0")
         CheckLosing = (Gameover(cell_copy_forX, "X") =="X")
-       # print("After one move either of one is winning", Checkwinning)
+
         if Checkwinning:
-            #If winning finish the game
+            # If winning finish the game
             cell[move] = '0'
             flag = True
             print('computer placed an \'0\' in position', move)
             break
+
         elif CheckLosing:
-            #If Losing Prevent the loss
+            # If Losing Prevent the loss
             cell[move] = '0'
             flag= True
             print('computer placed an \'0\' in position', move)
             break
 
     if(not flag):
+        # If the next moves are not winning or losing play casually
         if(possible_move.count(4) > 0):
             #If the central position i.e 5 is available, place there
            #Checking at corner piece
             cell[4] = '0'
+
         else:
             if len(Check_intersection(possible_move,[1,3,5,7]))>1:
                 #Placing at Corners
@@ -119,13 +144,16 @@ def computer():
                 cell[x] = '0'
                 print('\ncomputer placed an \'0\' in position')
 
+
 def main():
+
     print("Welcome to Tic Tac Toe \n")
     print_game()
     sgn= "X"
     print("\nIt's X's Turn")
     get_input(sgn)
     print_game()
+
     while not (IsboardFull(cell)):
         if(X_turn(cell)):
             sgn = "X"
@@ -136,15 +164,22 @@ def main():
             print("\nX's Turn")
             get_input(sgn)
             print_game()
+
         if not (X_turn(cell)):
             sgn = "0"
             if (Gameover(cell, "X") == "X"):
                 print('\nCongratulations Player X,you won the game.')
                 break
             print("\nComputer's turn")
+
+
             computer()
             print_game()
+
+
     if IsboardFull(cell):
         print("\nGame is draw.Play Again.")
+
+# Calling the main function
 main()
 #computer()
